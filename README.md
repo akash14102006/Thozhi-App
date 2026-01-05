@@ -13,7 +13,7 @@ In a world where safety is often reactive, Thozhi aims to be proactive. We've co
 
 ## Core Capabilities
 
-### �️ Smart SOS Echo
+### 🛡️ Smart SOS Echo
 A single tap doesn't just send a text. It triggers a multi-layered response:
 *   **Audio Recording**: Starts recording immediately to capture evidence.
 *   **Live Cloud Sync**: Uploads recordings in real-time so they can't be deleted locally.
@@ -25,8 +25,25 @@ We've digitized the community policing model. You can locate and track nearby fe
 ### 🤝 The "My Squad" System
 Safety is better with friends. Link with your family or inner circle using a unique **Safety ID**. They can watch your journey in real-time, receiving alerts if you veer off-course or stop unexpectedly.
 
-### � Verified Safe Routes
+### 📍 Verified Safe Routes
 Moving through the city at night? Our algorithm suggests routes based on lighting levels and historical safety data, ensuring you take the path most traveled by the community.
+
+---
+
+## 🚀 Live Preview
+You can view the latest build directly via **Expo Go**. Scan the QR code below with your mobile camera or the Expo Go app to open it instantly:
+
+<p align="center">
+  <img src="./assets/images/expo-qr.png" width="300" alt="Expo QR Code">
+  <br>
+  👉 <b><a href="https://expo.dev/accounts/akash14102006/projects/girl-mobile-app">Open Project on Expo</a></b>
+</p>
+
+---
+
+## 📺 Video Walkthrough
+Check out the full demonstration of the app's features:
+[![Watch the Video](https://img.youtube.com/vi/nZAPCu79gfI/0.jpg)](https://www.youtube.com/watch?v=nZAPCu79gfI)
 
 ---
 
@@ -41,8 +58,6 @@ Built using modern cross-platform technologies for speed and reliability.
 ---
 
 ## Developer Setup
-
-If you want to run this project locally, follow these steps:
 
 1.  **Clone the Repo**
     ```bash
