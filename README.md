@@ -1,50 +1,83 @@
-# Welcome to your Expo app 👋
+# Thozhi (தோழி) - Women's Safety Reimagined 👋
 
-This is an [Expo](https://expo.dev) project created with [`create-expo-app`](https://www.npmjs.com/package/create-expo-app).
+[![Expo App](https://img.shields.io/badge/Expo-Live_Preview-000000?style=for-the-badge&logo=expo&logoColor=white)](https://expo.dev/accounts/akash14102006/projects/girl-mobile-app)
+[![Video Demo](https://img.shields.io/badge/YouTube-Watch_Video-FF0000?style=for-the-badge&logo=youtube&logoColor=white)](https://www.youtube.com/watch?v=nZAPCu79gfI)
 
-## Get started
+**Thozhi** (meaning *Female Friend* in Tamil) is a state-of-the-art mobile application designed to empower women with real-time safety tools, community support, and emergency response integrated with local law enforcement.
 
-1. Install dependencies
+---
 
-   ```bash
-   npm install
-   ```
+## 🌟 Key Features
 
-2. Start the app
+### 🚨 Instant SOS & Evidence Recording
+- **One-Tap Emergency**: Trigger an immediate alert to your squad and nearby police.
+- **Automatic Evidence**: Automatically starts audio recording and uploads it to the cloud during SOS events.
+- **Live Location**: Shares real-time GPS coordinates with trusted contacts.
 
-   ```bash
-   npx expo start
-   ```
+### 👮 Police Akka (Nearby Support)
+- Find and connect with "Police Akkas" (Female Officers) stationed nearby.
+- Real-time tracking of responding officers.
+- Direct chat and emergency dispatch system.
 
-In the output, you'll find options to open the app in a
+### 👥 My Squad (Family Tracking)
+- Add trusted family members or friends to your "Safety Squad".
+- Permission-based real-time tracking for peace of mind during late-night travel.
 
-- [development build](https://docs.expo.dev/develop/development-builds/introduction/)
-- [Android emulator](https://docs.expo.dev/workflow/android-studio-emulator/)
-- [iOS simulator](https://docs.expo.dev/workflow/ios-simulator/)
-- [Expo Go](https://expo.dev/go), a limited sandbox for trying out app development with Expo
+### 🗺️ AI Safe Route
+- Navigate using AI-verified safe routes based on lighting, crowd density, and historical safety data.
+- Get alerts if you deviate from a planned safe path.
 
-You can start developing by editing the files inside the **app** directory. This project uses [file-based routing](https://docs.expo.dev/router/introduction).
+---
 
-## Get a fresh project
+## 🛠️ Tech Stack
 
-When you're ready, run:
+- **Frontend**: React Native, Expo SDK 54
+- **Styling**: Vanilla CSS-in-JS (Glassmorphism UI)
+- **Backend**: Google Cloud Platform (GCP), Firebase Auth
+- **Maps**: Expo Location, React Native Maps (Google Maps API)
+- **Storage**: AsyncStorage, Firebase Storage
 
+---
+
+## 🚀 Get Started
+
+### 1. Prerequisites
+Ensure you have [Node.js](https://nodejs.org/) installed on your machine.
+
+### 2. Installation
+Clone the repository and install dependencies:
 ```bash
-npm run reset-project
+npm install
 ```
 
-This command will move the starter code to the **app-example** directory and create a blank **app** directory where you can start developing.
+### 3. Run Locally
+Start the development server:
+```bash
+npx expo start
+```
 
-## Learn more
+### 4. Live Preview
+You can view the latest build directly via **Expo Go** or on the web:
+👉 **[View Project on Expo](https://expo.dev/accounts/akash14102006/projects/girl-mobile-app)**
 
-To learn more about developing your project with Expo, look at the following resources:
+---
 
-- [Expo documentation](https://docs.expo.dev/): Learn fundamentals, or go into advanced topics with our [guides](https://docs.expo.dev/guides).
-- [Learn Expo tutorial](https://docs.expo.dev/tutorial/introduction/): Follow a step-by-step tutorial where you'll create a project that runs on Android, iOS, and the web.
+## 📺 Video Walkthrough
+Check out the full demonstration of the app's features:
+[![Watch the Video](https://img.youtube.com/vi/nZAPCu79gfI/0.jpg)](https://www.youtube.com/watch?v=nZAPCu79gfI)
 
-## Join the community
+---
 
-Join our community of developers creating universal apps.
+## 🛡️ Security & Privacy
+Thozhi is built with privacy-first principles. Location data is only shared with trusted contacts during active "Track Me" sessions or SOS triggers. All audio recordings are encrypted and accessible only by the user and authorized authorities.
 
-- [Expo on GitHub](https://github.com/expo/expo): View our open source platform and contribute.
-- [Discord community](https://chat.expo.dev): Chat with Expo users and ask questions.
+---
+
+## 🤝 Community & Support
+Developed with ❤️ by **Akash**. 
+
+- **GitHub**: [akash14102006](https://github.com/akash14102006)
+- **Repo**: [Thozhi-App](https://github.com/akash14102006/Thozhi-App)
+
+---
+*Empowering women, one safe step at a time.*
