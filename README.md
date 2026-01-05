@@ -80,7 +80,7 @@ Built using modern cross-platform technologies for speed and reliability.
 ## Let's Connect
 This project is an ongoing effort to make our cities safer. I'm always open to feedback, collaborations, or feature suggestions.
 
-*   **Author**: [Akash](https://github.com/akash14102006)
+*    [Akash](https://github.com/akash14102006)
 *   **Project Link**: [Thozhi on GitHub](https://github.com/akash14102006/Thozhi-App)
 
 ---
