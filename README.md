@@ -59,18 +59,12 @@ Built using modern cross-platform technologies for speed and reliability.
 
 ## Developer Setup
 
-1.  **Clone the Repo**
-    ```bash
-    git clone https://github.com/akash14102006/Thozhi-App.git
-    cd Thozhi-App
-    ```
-
-2.  **Install Environment**
+1.  **Install Environment**
     ```bash
     npm install
     ```
 
-3.  **Launch**
+2.  **Launch**
     ```bash
     npx expo start
     ```
