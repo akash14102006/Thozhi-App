@@ -16,7 +16,7 @@
  *   - OTP stored server-side only (never sent to frontend)
  */
 
-require('dotenv').config();
+require('dotenv').config({ path: require('path').resolve(__dirname, '.env') });
 const express = require('express');
 const cors = require('cors');
 const mongoose = require('mongoose');

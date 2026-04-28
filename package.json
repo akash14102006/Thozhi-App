@@ -62,10 +62,16 @@
     "typescript": "~5.9.2"
   },
   "private": true,
+  "engines": {
+    "node": ">=22.0.0"
+  },
   "scripts": {
+    "build": "npm install && cd backend && npm install",
+    "postinstall": "cd backend && npm install",
+    "start": "node backend/server.js",
+    "app-start": "expo start",
     "android": "expo run:android",
     "ios": "expo run:ios",
-    "start": "expo start",
     "start:clear": "expo start --clear"
   }
 }
