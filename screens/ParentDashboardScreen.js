@@ -4,10 +4,16 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { StatusBar } from 'expo-status-bar';
 import { Ionicons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
-import MapView, { Marker, Polyline } from '../components/SafeMap';
+import SafeMap, { Marker, Polyline, Circle } from '../components/SafeMap';
+import * as Haptics from 'expo-haptics';
+import { db } from '../services/firebase';
+import { doc, onSnapshot, collection, query, where } from 'firebase/firestore';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 const { width, height } = Dimensions.get('window');
 
+// Real-time Geofence Data (Synced with DB)
+import { AuthService } from '../services/authService';
 
 const mapStyle = [
     { "elementType": "geometry", "stylers": [{ "color": "#242f3e" }] },
@@ -20,50 +26,86 @@ const mapStyle = [
 ];
 
 export default function ParentDashboardScreen({ navigation }) {
-    
-    const [girlLocation, setGirlLocation] = useState({
-        latitude: 37.78825,
-        longitude: -122.4324,
-    });
-    const [status, setStatus] = useState('ON_ROUTE'); 
-    const [lastUpdate, setLastUpdate] = useState('Just now');
-    const [battery, setBattery] = useState(85);
 
-    
-    const routeCoordinates = [
-        { latitude: 37.78825, longitude: -122.4324 },
-        { latitude: 37.78925, longitude: -122.4344 }, 
-        { latitude: 37.79125, longitude: -122.4364 },
-        { latitude: 37.79325, longitude: -122.4384 }, 
-    ];
+    const [girlData, setGirlData] = useState(null);
+    const [girlLocation, setGirlLocation] = useState(null);
+    const [status, setStatus] = useState('ACTIVE');
+    const [battery, setBattery] = useState(0);
+    const [geofenceZones, setGeofenceZones] = useState([]);
+    const [routeCoordinates, setRouteCoordinates] = useState([]);
+    const [lastUpdate, setLastUpdate] = useState('Recently');
+    const mapRef = useRef(null);
 
-    
     useEffect(() => {
-        let step = 0;
-        const interval = setInterval(() => {
-            step = (step + 1) % routeCoordinates.length;
-            setGirlLocation(routeCoordinates[step]);
+        let unsubscribe = () => { };
 
-            
-            if (step % 5 === 0) setBattery(b => Math.max(0, b - 1));
+        const initParentTracking = async () => {
+            try {
+                // Fetch dynamic geofences
+                const zones = await AuthService.getGeofences();
+                setGeofenceZones(zones);
 
-        }, 3000); 
+                const storedGirlId = await AsyncStorage.getItem('TRACKING_GIRL_ID') || 'THOZHI-IL939V';
+                const q = query(collection(db, "users"), where("safetyId", "==", storedGirlId));
 
-        return () => clearInterval(interval);
+                unsubscribe = onSnapshot(q, (snapshot) => {
+                    if (!snapshot.empty) {
+                        const data = snapshot.docs[0].data();
+                        setGirlData(data);
+                        if (data.lastLocation) {
+                            const newLoc = {
+                                latitude: data.lastLocation.latitude,
+                                longitude: data.lastLocation.longitude
+                            };
+                            setGirlLocation(newLoc);
+                            setLastUpdate(new Date().toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' }));
+
+                            setRouteCoordinates(prev => {
+                                if (prev.length > 0) {
+                                    const last = prev[prev.length - 1];
+                                    if (last.latitude === newLoc.latitude && last.longitude === newLoc.longitude) return prev;
+                                }
+                                return [...prev, newLoc].slice(-50);
+                            });
+
+                            if (mapRef.current) {
+                                mapRef.current.animateToRegion({
+                                    ...newLoc,
+                                    latitudeDelta: 0.015,
+                                    longitudeDelta: 0.015,
+                                }, 1000);
+                            }
+                        }
+                        if (data.deviceInfo) {
+                            setBattery(data.deviceInfo.battery);
+                        }
+                        if (data.isAtRisk) {
+                            setStatus('AT RISK');
+                            if (Platform.OS !== 'web') {
+                                Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
+                            }
+                        } else {
+                            setStatus('ACTIVE');
+                        }
+                    }
+                });
+            } catch (e) {
+                console.log("Parent tracking init failed", e);
+            }
+        };
+
+        initParentTracking();
+        return () => unsubscribe();
     }, []);
 
     const StatusBadge = ({ status }) => {
-        let color = '#34D399'; 
+        let color = '#34D399';
         let text = 'ON ROUTE';
         let icon = 'shield-checkmark';
 
-        if (status === 'DEVIATED') {
-            color = '#FBBF24'; 
-            text = 'ROUTE DEVIATION';
-            icon = 'warning';
-        } else if (status === 'STOPPED') {
-            color = '#F87171'; 
-            text = 'UNEXPECTED STOP';
+        if (status === 'AT RISK') {
+            color = '#F87171';
+            text = '⚠️ UNEXPECTED LOCATION';
             icon = 'alert-circle';
         }
 
@@ -79,7 +121,7 @@ export default function ParentDashboardScreen({ navigation }) {
         <View style={styles.container}>
             <StatusBar style="light" />
 
-            {}
+            { }
             <LinearGradient
                 colors={['rgba(0,0,0,0.8)', 'transparent']}
                 style={styles.headerGradient}
@@ -89,8 +131,10 @@ export default function ParentDashboardScreen({ navigation }) {
                         <Ionicons name="arrow-back" size={24} color="#FFF" />
                     </TouchableOpacity>
                     <View>
-                        <Text style={styles.headerTitle}>Monitoring: Jennifer</Text>
-                        <Text style={styles.headerSub}>Live Tracking Active</Text>
+                        <Text style={styles.headerTitle}>Monitoring: {girlData?.name || 'Warrior'}</Text>
+                        <Text style={[styles.headerSub, status === 'AT RISK' && { color: '#F87171' }]}>
+                            {status === 'AT RISK' ? '🚨 DANGER DETECTED' : 'Live Tracking Active'}
+                        </Text>
                     </View>
                     <TouchableOpacity style={styles.callButton}>
                         <Ionicons name="call" size={24} color="#FFF" />
@@ -98,17 +142,29 @@ export default function ParentDashboardScreen({ navigation }) {
                 </View>
             </LinearGradient>
 
-            {}
-            <MapView
+            { }
+            <SafeMap
+                ref={mapRef}
                 style={styles.map}
-                customMapStyle={mapStyle}
-                region={{
-                    ...girlLocation,
+                initialRegion={{
+                    latitude: girlLocation?.latitude || 37.78825,
+                    longitude: girlLocation?.longitude || -122.4324,
                     latitudeDelta: 0.015,
                     longitudeDelta: 0.015,
                 }}
             >
-                {}
+                {/* Render Geofence Zones from DB */}
+                {geofenceZones.map(zone => (
+                    <Circle
+                        key={zone.id}
+                        center={{ latitude: zone.lat, longitude: zone.lng }}
+                        radius={zone.radius}
+                        fillColor={zone.riskLevel === 'HIGH' ? 'rgba(239, 68, 68, 0.2)' : 'rgba(245, 158, 11, 0.15)'}
+                        strokeColor={zone.riskLevel === 'HIGH' ? 'rgba(239, 68, 68, 0.5)' : 'rgba(245, 158, 11, 0.4)'}
+                        strokeWidth={2}
+                    />
+                ))}
+                { }
                 <Polyline
                     coordinates={routeCoordinates}
                     strokeColor="#34D399"
@@ -116,7 +172,7 @@ export default function ParentDashboardScreen({ navigation }) {
                     lineDashPattern={[0]}
                 />
 
-                {}
+                { }
                 <Marker coordinate={girlLocation}>
                     <View style={styles.markerContainer}>
                         <View style={styles.markerRing}>
@@ -128,16 +184,18 @@ export default function ParentDashboardScreen({ navigation }) {
                     </View>
                 </Marker>
 
-                {}
-                <Marker coordinate={routeCoordinates[routeCoordinates.length - 1]}>
-                    <View style={styles.destMarker}>
-                        <Ionicons name="flag" size={16} color="#111" />
-                    </View>
-                </Marker>
+                {/* Destination Marker */}
+                {routeCoordinates.length > 0 && (
+                    <Marker coordinate={routeCoordinates[routeCoordinates.length - 1]}>
+                        <View style={styles.destMarker}>
+                            <Ionicons name="flag" size={16} color="#111" />
+                        </View>
+                    </Marker>
+                )}
 
-            </MapView>
+            </SafeMap>
 
-            {}
+            { }
             <BlurView intensity={30} tint="dark" style={styles.bottomPanel}>
                 <View style={styles.panelHandle} />
 

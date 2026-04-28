@@ -35,13 +35,8 @@ export default function RoleSelectionScreen({ navigation }) {
         setSelectedRole(role);
         
         setTimeout(() => {
-            if (role === 'girl') {
-                navigation.navigate('GirlLogin');
-            } else if (role === 'family') {
-                navigation.navigate('FamilyLogin');
-            } else if (role === 'police') {
-                navigation.navigate('PoliceLogin');
-            }
+            // All roles go through the unified login method screen
+            navigation.navigate('LoginMethod', { role });
         }, 300);
     };
 

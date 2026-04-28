@@ -15,7 +15,7 @@ import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialCommunityIcons, FontAwesome5 } from '@expo/vector-icons';
-import MapView, { Marker, Circle } from '../components/SafeMap';
+import SafeMap, { Marker, Circle } from '../components/SafeMap';
 import * as Location from 'expo-location';
 import { AuthService } from '../services/authService';
 
@@ -72,7 +72,7 @@ export default function FindPoliceScreen({ navigation }) {
                 let loc = await Location.getCurrentPositionAsync({});
                 setLocation(loc);
 
-                
+
                 const officers = await AuthService.findNearbyPolice(loc.coords);
                 setNearbyPolice(officers);
             }
@@ -103,10 +103,10 @@ export default function FindPoliceScreen({ navigation }) {
         <View style={styles.container}>
             <StatusBar style="light" />
 
-            {}
+            { }
             <View style={styles.mapWrapper}>
                 {location ? (
-                    <MapView
+                    <SafeMap
                         style={StyleSheet.absoluteFill}
                         initialRegion={{
                             latitude: location.coords.latitude,
@@ -142,7 +142,7 @@ export default function FindPoliceScreen({ navigation }) {
                                 key={officer.id}
                                 coordinate={{
                                     latitude: officer.lat || location.coords.latitude + 0.005,
-                                    longitude: officer.lng || location.coords.longitude + 0.005,
+                                    longitude: officer.longitude || officer.lng || location.coords.longitude + 0.005,
                                 }}
                                 title={officer.name}
                             >
@@ -154,7 +154,7 @@ export default function FindPoliceScreen({ navigation }) {
                                 </View>
                             </Marker>
                         ))}
-                    </MapView>
+                    </SafeMap>
                 ) : (
                     <View style={styles.loadingContainer}>
                         <Text style={styles.loadingText}>Locating nearby Police Akka...</Text>
@@ -168,7 +168,7 @@ export default function FindPoliceScreen({ navigation }) {
                 />
             </View>
 
-            {}
+            { }
             <TouchableOpacity
                 style={styles.backButton}
                 onPress={() => navigation.goBack()}
@@ -178,7 +178,7 @@ export default function FindPoliceScreen({ navigation }) {
                 </BlurView>
             </TouchableOpacity>
 
-            {}
+            { }
             <View style={styles.bottomContent}>
                 <View style={styles.handleBar} />
                 <View style={styles.headerRow}>
@@ -317,7 +317,7 @@ const styles = StyleSheet.create({
     connectGradient: { flex: 1, justifyContent: 'center', alignItems: 'center' },
     connectText: { color: '#FFF', fontSize: 12, fontWeight: 'bold' },
 
-    
+
     userMarker: { width: 40, height: 40, alignItems: 'center', justifyContent: 'center' },
     userMarkerPulse: {
         position: 'absolute',

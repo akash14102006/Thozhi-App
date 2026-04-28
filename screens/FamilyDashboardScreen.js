@@ -5,7 +5,7 @@ import { StatusBar } from 'expo-status-bar';
 import { Ionicons, MaterialCommunityIcons, MaterialIcons } from '@expo/vector-icons';
 import { BlurView } from 'expo-blur';
 import * as Location from 'expo-location';
-import MapView, { Marker, Polyline } from '../components/SafeMap';
+import SafeMap, { Marker, Polyline } from '../components/SafeMap';
 
 const { width, height } = Dimensions.get('window');
 
@@ -14,7 +14,7 @@ const trackedMember = {
     name: "Anu",
     safetyId: "Girl#4821",
     currentLocation: { latitude: 37.78825, longitude: -122.4324 },
-    status: "On Route", 
+    status: "On Route",
     battery: 78,
     plannedRoute: [
         { latitude: 37.78825, longitude: -122.4324 },
@@ -43,10 +43,10 @@ export default function FamilyDashboardScreen({ navigation }) {
     const [memberLocation, setMemberLocation] = useState(trackedMember.currentLocation);
     const [isTracking, setIsTracking] = useState(true);
 
-    
+
     useEffect(() => {
         if (!isTracking) return;
-        
+
         const interval = setInterval(() => {
             setMemberLocation(prev => ({
                 latitude: prev.latitude + 0.0001,
@@ -62,7 +62,7 @@ export default function FamilyDashboardScreen({ navigation }) {
     };
 
     const getStatusColor = () => {
-        switch(trackedMember.status) {
+        switch (trackedMember.status) {
             case 'On Route': return '#34D399';
             case 'Deviated': return '#FBBF24';
             case 'Safe at Destination': return '#60A5FA';
@@ -74,9 +74,9 @@ export default function FamilyDashboardScreen({ navigation }) {
         <View style={styles.container}>
             <StatusBar style="light" />
 
-            {}
+            { }
             <View style={styles.mapContainer}>
-                <MapView
+                <SafeMap
                     style={styles.map}
                     initialRegion={{
                         latitude: memberLocation.latitude,
@@ -92,15 +92,15 @@ export default function FamilyDashboardScreen({ navigation }) {
                     }}
                     followsUserLocation={false}
                 >
-                    {}
+                    { }
                     <Polyline
                         coordinates={trackedMember.plannedRoute}
                         strokeColor="#8B5CF6"
                         strokeWidth={4}
                         lineDashPattern={[10, 5]}
                     />
-                    
-                    {}
+
+                    { }
                     <Marker coordinate={memberLocation}>
                         <View style={styles.liveMarker}>
                             <View style={styles.markerPulse} />
@@ -108,15 +108,15 @@ export default function FamilyDashboardScreen({ navigation }) {
                         </View>
                     </Marker>
 
-                    {}
+                    { }
                     <Marker coordinate={trackedMember.destination}>
                         <View style={styles.destinationMarker}>
                             <Ionicons name="flag" size={20} color="#FFF" />
                         </View>
                     </Marker>
-                </MapView>
+                </SafeMap>
 
-                {}
+                { }
                 <BlurView intensity={40} tint="dark" style={styles.floatingHeader}>
                     <View style={styles.headerLeft}>
                         <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backBtn}>
@@ -132,14 +132,14 @@ export default function FamilyDashboardScreen({ navigation }) {
                     </TouchableOpacity>
                 </BlurView>
 
-                {}
+                { }
                 <BlurView intensity={30} tint="dark" style={styles.statusPill}>
                     <View style={[styles.statusDot, { backgroundColor: getStatusColor() }]} />
                     <Text style={styles.statusText}>{trackedMember.status}</Text>
                 </BlurView>
             </View>
 
-            {}
+            { }
             <View style={styles.dashboardSection}>
                 <LinearGradient
                     colors={['#1F0A3C', '#2E1065']}
@@ -147,35 +147,35 @@ export default function FamilyDashboardScreen({ navigation }) {
                 />
 
                 <ScrollView showsVerticalScrollIndicator={false} contentContainerStyle={styles.scrollContent}>
-                    {}
+                    { }
                     <View style={styles.statsGrid}>
-                        <QuickStatCard 
-                            icon="battery-charging" 
+                        <QuickStatCard
+                            icon="battery-charging"
                             IconLib={MaterialCommunityIcons}
-                            label="Battery" 
+                            label="Battery"
                             value={`${trackedMember.battery}%`}
                             color="#34D399"
                         />
-                        <QuickStatCard 
-                            icon="time-outline" 
-                            label="ETA" 
+                        <QuickStatCard
+                            icon="time-outline"
+                            label="ETA"
                             value={trackedMember.estimatedArrival}
                             color="#A78BFA"
                         />
-                        <QuickStatCard 
-                            icon="sync" 
+                        <QuickStatCard
+                            icon="sync"
                             IconLib={MaterialIcons}
-                            label="Updated" 
+                            label="Updated"
                             value={trackedMember.lastUpdate}
                             color="#60A5FA"
                         />
                     </View>
 
-                    {}
+                    { }
                     <View style={styles.journeyCard}>
                         <BlurView intensity={20} tint="dark" style={styles.journeyBlur}>
                             <Text style={styles.sectionTitle}>Current Journey</Text>
-                            
+
                             <View style={styles.journeyRow}>
                                 <View style={styles.journeyPoint}>
                                     <View style={[styles.pointDot, { backgroundColor: '#34D399' }]} />
@@ -201,9 +201,9 @@ export default function FamilyDashboardScreen({ navigation }) {
                         </BlurView>
                     </View>
 
-                    {}
+                    { }
                     <View style={styles.actionButtons}>
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.actionBtn}
                             onPress={handleRequestHelp}
                         >
@@ -216,7 +216,7 @@ export default function FamilyDashboardScreen({ navigation }) {
                             </LinearGradient>
                         </TouchableOpacity>
 
-                        <TouchableOpacity 
+                        <TouchableOpacity
                             style={styles.actionBtn}
                             onPress={() => alert("Calling...")}
                         >
@@ -230,7 +230,7 @@ export default function FamilyDashboardScreen({ navigation }) {
                         </TouchableOpacity>
                     </View>
 
-                    {}
+                    { }
                     <View style={{ height: 20 }} />
                 </ScrollView>
             </View>
@@ -240,12 +240,12 @@ export default function FamilyDashboardScreen({ navigation }) {
 
 const styles = StyleSheet.create({
     container: { flex: 1, backgroundColor: '#0D0915' },
-    
-    
+
+
     mapContainer: { height: height * 0.55, position: 'relative' },
     map: { width: '100%', height: '100%' },
-    
-    
+
+
     floatingHeader: {
         position: 'absolute',
         top: 50,
@@ -266,7 +266,7 @@ const styles = StyleSheet.create({
     headerSubtitle: { color: 'rgba(255,255,255,0.6)', fontSize: 12 },
     refreshBtn: { padding: 8, backgroundColor: 'rgba(139, 92, 246, 0.3)', borderRadius: 12 },
 
-    
+
     statusPill: {
         position: 'absolute',
         top: 120,
@@ -288,7 +288,7 @@ const styles = StyleSheet.create({
     },
     statusText: { color: '#FFF', fontSize: 13, fontWeight: '600' },
 
-    
+
     liveMarker: {
         width: 50,
         height: 50,
@@ -319,7 +319,7 @@ const styles = StyleSheet.create({
         alignItems: 'center',
     },
 
-    
+
     dashboardSection: {
         flex: 1,
         borderTopLeftRadius: 30,
@@ -332,7 +332,7 @@ const styles = StyleSheet.create({
         paddingTop: 30,
     },
 
-    
+
     statsGrid: {
         flexDirection: 'row',
         gap: 12,
@@ -368,7 +368,7 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
     },
 
-    
+
     journeyCard: {
         borderRadius: 20,
         overflow: 'hidden',
@@ -426,7 +426,7 @@ const styles = StyleSheet.create({
         fontSize: 13,
     },
 
-    
+
     actionButtons: {
         gap: 12,
     },

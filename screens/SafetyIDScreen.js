@@ -10,12 +10,14 @@ import {
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 
+import QRCode from 'react-native-qrcode-svg';
+
 const { width } = Dimensions.get('window');
 
 export default function SafetyIdScreen({ route, navigation }) {
-    const { safetyId, isNewUser, role } = route.params || { safetyId: 'Girl#????', isNewUser: false, role: 'girl' };
+    const { safetyId, isNewUser, role } = route.params || { safetyId: 'THOZHI-XXXXXX', isNewUser: false, role: 'girl' };
 
-    
+
     const fadeAnim = useRef(new Animated.Value(0)).current;
     const scaleAnim = useRef(new Animated.Value(0.8)).current;
 
@@ -35,7 +37,7 @@ export default function SafetyIdScreen({ route, navigation }) {
     }, []);
 
     const handleContinue = () => {
-        
+
         switch (role) {
             case 'girl':
                 navigation.replace('Home');
@@ -68,6 +70,16 @@ export default function SafetyIdScreen({ route, navigation }) {
                 <Animated.View style={[styles.idCard, { opacity: fadeAnim, transform: [{ scale: scaleAnim }] }]}>
                     <Text style={styles.label}>Your Unique Safety ID</Text>
                     <Text style={styles.safetyId}>{safetyId}</Text>
+
+                    <View style={styles.qrContainer}>
+                        <QRCode
+                            value={`thozhi://connect?sid=${safetyId}`}
+                            size={120}
+                            backgroundColor="#FFFFFF"
+                            color="#000000"
+                        />
+                    </View>
+
                     <View style={styles.badge}>
                         <Text style={styles.badgeText}>ANONYMOUS & SECURE</Text>
                     </View>
@@ -115,7 +127,7 @@ const styles = StyleSheet.create({
         borderRadius: 30,
         borderWidth: 1,
         borderColor: 'rgba(255, 255, 255, 0.3)',
-        alignItems: 'center', 
+        alignItems: 'center',
         shadowColor: "#8B5CF6",
         shadowOffset: { width: 0, height: 0 },
         shadowOpacity: 0.5,
@@ -137,6 +149,12 @@ const styles = StyleSheet.create({
         textShadowColor: 'rgba(139, 92, 246, 0.8)',
         textShadowOffset: { width: 0, height: 0 },
         textShadowRadius: 20,
+    },
+    qrContainer: {
+        padding: 10,
+        backgroundColor: '#FFF',
+        borderRadius: 15,
+        marginBottom: 20,
     },
     badge: {
         backgroundColor: 'rgba(139, 92, 246, 0.3)',

@@ -1,12 +1,54 @@
-import React, { useState } from 'react';
-import { View, Text, TouchableOpacity, StyleSheet, Modal, Share, Platform } from 'react-native';
+import React, { useState, useEffect } from 'react';
+import { View, Text, TouchableOpacity, StyleSheet, Modal, Share, Platform, ActivityIndicator } from 'react-native';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons } from '@expo/vector-icons';
+import { db } from '../services/firebase';
+import { doc, updateDoc } from 'firebase/firestore';
 import QRCode from 'react-native-qrcode-svg';
 
-export default function SafetyIdentityCard({ safetyId, userName, onClose }) {
+export default function SafetyIdentityCard({ safetyId, userName, navigation, onClose }) {
     const [showQR, setShowQR] = useState(false);
+    const [secureToken, setSecureToken] = useState('');
+    const [timeLeft, setTimeLeft] = useState(600); // 10 minutes
+
+    useEffect(() => {
+        let timer;
+        if (showQR) {
+            const generateNewToken = async () => {
+                try {
+                    const token = Math.random().toString(36).substring(7).toUpperCase();
+                    setSecureToken(token);
+                    setTimeLeft(600);
+
+                    // Update live token in Firestore so Family Squad can verify it
+                    if (safetyId) {
+                        const userRef = doc(db, "users", safetyId);
+                        await updateDoc(userRef, {
+                            currentSecureToken: token,
+                            tokenGeneratedAt: new Date().toISOString()
+                        });
+                        console.log(`[SafetyCard] Live Token Synced to cloud: ${token}`);
+                    }
+                } catch (e) {
+                    console.log("Token sync failed", e);
+                }
+            };
+
+            generateNewToken();
+
+            timer = setInterval(() => {
+                setTimeLeft((prev) => {
+                    if (prev <= 1) {
+                        generateNewToken();
+                        return 600;
+                    }
+                    return prev - 1;
+                });
+            }, 1000);
+        }
+        return () => clearInterval(timer);
+    }, [showQR]);
 
     const handleShare = async () => {
         try {
@@ -33,31 +75,31 @@ export default function SafetyIdentityCard({ safetyId, userName, onClose }) {
                 />
 
                 <View style={styles.modalContent}>
-                    {}
+                    { }
                     <TouchableOpacity style={styles.closeButton} onPress={onClose}>
                         <Ionicons name="close-circle" size={32} color="rgba(255,255,255,0.8)" />
                     </TouchableOpacity>
 
-                    {}
+                    { }
                     <BlurView intensity={40} tint="dark" style={styles.cardContainer}>
                         <LinearGradient
                             colors={['rgba(123, 97, 255, 0.15)', 'rgba(154, 132, 255, 0.1)']}
                             style={styles.cardGradient}
                         >
-                            {}
+                            { }
                             <View style={styles.cardHeader}>
                                 <Ionicons name="shield-checkmark" size={40} color="#7B61FF" />
                                 <Text style={styles.cardTitle}>Safety Identity</Text>
                                 <Text style={styles.cardSubtitle}>Smart Verification System</Text>
                             </View>
 
-                            {}
+                            { }
                             <View style={styles.userSection}>
                                 <Text style={styles.userName}>{userName || 'Warrior'}</Text>
                                 <View style={styles.divider} />
                             </View>
 
-                            {}
+                            { }
                             <View style={styles.idSection}>
                                 <Text style={styles.idLabel}>Safety ID</Text>
                                 <View style={styles.idBox}>
@@ -68,16 +110,39 @@ export default function SafetyIdentityCard({ safetyId, userName, onClose }) {
                                 </View>
                             </View>
 
-                            {}
+                            { }
                             {showQR ? (
                                 <View style={styles.qrSection}>
                                     <View style={styles.qrContainer}>
-                                        <QRCode
-                                            value={safetyId}
-                                            size={180}
-                                            backgroundColor="transparent"
-                                            color="#FFFFFF"
-                                        />
+                                        {(!secureToken || !safetyId) ? (
+                                            <View style={{ height: 200, justifyContent: 'center', alignItems: 'center' }}>
+                                                <ActivityIndicator size="large" color="#7B61FF" />
+                                                <Text style={{ marginTop: 10, color: '#666', fontSize: 12 }}>Generating secure token...</Text>
+                                            </View>
+                                        ) : (
+                                            <>
+                                                <QRCode
+                                                    value={`${safetyId}|${secureToken}`}
+                                                    size={200}
+                                                    backgroundColor="white"
+                                                    color="black"
+                                                    ecl="H"
+                                                />
+                                            </>
+                                        )}
+                                    </View>
+
+                                    {/* Textual Backup for Manual Entry */}
+                                    {secureToken && (
+                                        <View style={styles.tokenDisplay}>
+                                            <Text style={styles.tokenLabel}>SECURE TOKEN:</Text>
+                                            <Text style={styles.tokenValue}>{secureToken}</Text>
+                                        </View>
+                                    )}
+
+                                    <View style={styles.expiryBadge}>
+                                        <Ionicons name="timer-outline" size={14} color="#7B61FF" />
+                                        <Text style={styles.expiryText}>Refreshes in {Math.floor(timeLeft / 60)}:{(timeLeft % 60).toString().padStart(2, '0')}</Text>
                                     </View>
                                     <TouchableOpacity
                                         onPress={() => setShowQR(false)}
@@ -101,7 +166,7 @@ export default function SafetyIdentityCard({ safetyId, userName, onClose }) {
                                 </TouchableOpacity>
                             )}
 
-                            {}
+                            { }
                             <View style={styles.infoSection}>
                                 <View style={styles.infoItem}>
                                     <Ionicons name="people-outline" size={16} color="#A78BFA" />
@@ -117,7 +182,23 @@ export default function SafetyIdentityCard({ safetyId, userName, onClose }) {
                                 </View>
                             </View>
 
-                            {}
+                            <TouchableOpacity
+                                style={styles.manageFamilyBtn}
+                                onPress={() => {
+                                    onClose();
+                                    if (navigation) navigation.navigate('Family');
+                                }}
+                            >
+                                <LinearGradient
+                                    colors={['#4C1D95', '#2E1065']}
+                                    style={styles.manageFamilyGradient}
+                                >
+                                    <Ionicons name="settings-outline" size={18} color="#FFF" />
+                                    <Text style={styles.manageFamilyText}>Manage Family Connections</Text>
+                                </LinearGradient>
+                            </TouchableOpacity>
+
+                            { }
                             <View style={styles.securityBadge}>
                                 <Ionicons name="lock-closed" size={14} color="#34D399" />
                                 <Text style={styles.securityText}>No phone number sharing required</Text>
@@ -233,9 +314,26 @@ const styles = StyleSheet.create({
         padding: 8,
     },
     qrToggleText: {
-        color: '#7B61FF',
+        color: 'rgba(255,255,255,0.4)',
         fontSize: 14,
         fontWeight: '600',
+    },
+    expiryBadge: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        paddingHorizontal: 16,
+        paddingVertical: 6,
+        backgroundColor: 'rgba(123, 97, 255, 0.1)',
+        borderRadius: 20,
+        marginBottom: 10,
+        gap: 6,
+        borderWidth: 1,
+        borderColor: 'rgba(123, 97, 255, 0.2)',
+    },
+    expiryText: {
+        color: '#A78BFA',
+        fontSize: 12,
+        fontWeight: 'bold',
     },
     showQrButton: {
         marginBottom: 20,
@@ -286,5 +384,45 @@ const styles = StyleSheet.create({
         color: 'rgba(255,255,255,0.8)',
         fontSize: 11,
         fontWeight: '600',
+    },
+    manageFamilyBtn: {
+        marginBottom: 16,
+        borderRadius: 16,
+        overflow: 'hidden',
+        borderWidth: 1,
+        borderColor: 'rgba(255,255,255,0.2)',
+    },
+    manageFamilyGradient: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'center',
+        paddingVertical: 12,
+        gap: 8,
+    },
+    manageFamilyText: {
+        color: '#FFF',
+        fontSize: 14,
+        fontWeight: '600',
+    },
+    tokenDisplay: {
+        alignItems: 'center',
+        marginBottom: 12,
+        backgroundColor: 'rgba(255, 255, 255, 0.1)',
+        paddingHorizontal: 16,
+        paddingVertical: 4,
+        borderRadius: 8,
+    },
+    tokenLabel: {
+        color: 'rgba(255, 255, 255, 0.5)',
+        fontSize: 10,
+        fontWeight: 'bold',
+        letterSpacing: 1,
+    },
+    tokenValue: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+        letterSpacing: 3,
+        fontFamily: Platform.OS === 'ios' ? 'Courier' : 'monospace',
     },
 });

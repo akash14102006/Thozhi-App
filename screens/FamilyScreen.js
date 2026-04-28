@@ -5,7 +5,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { StatusBar } from 'expo-status-bar';
 
 export default function FamilyScreen({ navigation }) {
-    
+
     const [isLive, setIsLive] = useState(true);
     const [parents, setParents] = useState([
         { id: 1, name: 'Dad', status: 'Online', role: 'Admin' },
@@ -54,7 +54,7 @@ export default function FamilyScreen({ navigation }) {
                 style={StyleSheet.absoluteFill}
             />
 
-            {}
+            { }
             <View style={styles.header}>
                 <TouchableOpacity onPress={() => navigation.goBack()} style={styles.backButton}>
                     <Ionicons name="arrow-back" size={24} color="#FFF" />
@@ -67,7 +67,33 @@ export default function FamilyScreen({ navigation }) {
 
             <ScrollView contentContainerStyle={styles.scrollContent}>
 
-                {}
+                {/* TODAY'S SAFE TRAVEL PLAN FEATURE CARD */}
+                <TouchableOpacity
+                    style={styles.planningCard}
+                    onPress={() => navigation.navigate('TravelPlanning')}
+                    activeOpacity={0.9}
+                >
+                    <LinearGradient
+                        colors={['#8B5CF6', '#6D28D9']}
+                        style={styles.planningGradient}
+                    >
+                        <View style={styles.planningHeader}>
+                            <View style={styles.planningIconBox}>
+                                <Ionicons name="map" size={24} color="#FFF" />
+                            </View>
+                            <View>
+                                <Text style={styles.planningTitle}>Today's Safe Travel Plan</Text>
+                                <Text style={styles.planningSubtitle}>Chain travel tracking & family alerts</Text>
+                            </View>
+                        </View>
+                        <View style={styles.planningAction}>
+                            <Text style={styles.planningActionText}>START PLANNING</Text>
+                            <Ionicons name="arrow-forward-circle" size={24} color="#FFF" />
+                        </View>
+                    </LinearGradient>
+                </TouchableOpacity>
+
+                { }
                 <View style={styles.statusCard}>
                     <LinearGradient
                         colors={isLive ? ['#059669', '#10B981'] : ['#4B5563', '#6B7280']}
@@ -90,7 +116,7 @@ export default function FamilyScreen({ navigation }) {
                     </LinearGradient>
                 </View>
 
-                {}
+                { }
                 <View style={styles.sectionHeader}>
                     <Text style={styles.sectionTitle}>Linked Parents</Text>
                 </View>
@@ -98,7 +124,7 @@ export default function FamilyScreen({ navigation }) {
                     {parents.map(renderParentItem)}
                 </View>
 
-                {}
+                { }
                 <View style={[styles.sectionHeader, { marginTop: 30 }]}>
                     <Text style={styles.sectionTitle}>Daily Safe Routes</Text>
                     <TouchableOpacity onPress={() => navigation.navigate('RouteSetup')}>
@@ -109,7 +135,7 @@ export default function FamilyScreen({ navigation }) {
                     {routes.map(renderRouteItem)}
                 </View>
 
-                {}
+                { }
                 <View style={styles.scoreCard}>
                     <View style={styles.scoreCircle}>
                         <Text style={styles.scoreNumber}>94</Text>
@@ -123,7 +149,7 @@ export default function FamilyScreen({ navigation }) {
                     </View>
                 </View>
 
-                {}
+                { }
                 <TouchableOpacity
                     style={styles.demoButton}
                     onPress={() => navigation.navigate('ParentDashboard')}
@@ -319,5 +345,56 @@ const styles = StyleSheet.create({
         fontWeight: 'bold',
         fontSize: 12,
         letterSpacing: 1
+    },
+    // Travel Planning Card Styles
+    planningCard: {
+        borderRadius: 20,
+        marginBottom: 20,
+        overflow: 'hidden',
+        elevation: 10,
+        shadowColor: "#8B5CF6",
+        shadowOffset: { width: 0, height: 6 },
+        shadowOpacity: 0.4,
+        shadowRadius: 10,
+    },
+    planningGradient: {
+        padding: 20,
+    },
+    planningHeader: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        gap: 15,
+        marginBottom: 15,
+    },
+    planningIconBox: {
+        width: 50,
+        height: 50,
+        borderRadius: 15,
+        backgroundColor: 'rgba(255,255,255,0.2)',
+        justifyContent: 'center',
+        alignItems: 'center',
+    },
+    planningTitle: {
+        color: '#FFF',
+        fontSize: 18,
+        fontWeight: 'bold',
+    },
+    planningSubtitle: {
+        color: 'rgba(255,255,255,0.7)',
+        fontSize: 12,
+    },
+    planningAction: {
+        flexDirection: 'row',
+        alignItems: 'center',
+        justifyContent: 'space-between',
+        backgroundColor: 'rgba(0,0,0,0.2)',
+        padding: 12,
+        borderRadius: 12,
+    },
+    planningActionText: {
+        color: '#FFF',
+        fontSize: 13,
+        fontWeight: 'bold',
+        letterSpacing: 1,
     }
 });

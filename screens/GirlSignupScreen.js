@@ -20,8 +20,8 @@ import { AuthService } from '../services/authService';
 const { width } = Dimensions.get('window');
 
 export default function GirlSignupScreen({ navigation, route }) {
-    const { phone } = route.params || {};
-    const [name, setName] = useState('');
+    const { phone, userData: initialUserData } = route.params || {};
+    const [name, setName] = useState(initialUserData?.name || '');
     const [emergencyContactName, setEmergencyContactName] = useState('');
     const [emergencyContactPhone, setEmergencyContactPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
@@ -34,21 +34,30 @@ export default function GirlSignupScreen({ navigation, route }) {
 
         setIsLoading(true);
         try {
-            const result = await AuthService.createGirlProfile(phone, {
+            // If we have initialUserData (from Google login), extract email
+            const profileData = {
                 name,
+                email: initialUserData?.email,
                 emergencyContacts: [{
                     name: emergencyContactName,
                     phone: emergencyContactPhone,
                     relation: 'Parent'
                 }]
-            });
+            };
+
+            const result = await AuthService.createGirlProfile(phone, profileData);
 
             if (result.success) {
-                
-                navigation.replace('Home');
+                // Navigate to Safety ID screen to show the new ID
+                navigation.replace('SafetyId', {
+                    safetyId: result.safetyId,
+                    isNewUser: true,
+                    role: 'girl'
+                });
             }
         } catch (error) {
-            alert("Failed to create profile");
+            console.error("Signup Error:", error);
+            alert("Failed to create profile: " + (error.message || "Unknown error"));
         } finally {
             setIsLoading(false);
         }
@@ -66,7 +75,7 @@ export default function GirlSignupScreen({ navigation, route }) {
             <View style={[styles.circle, { top: -100, right: -50, backgroundColor: '#7B61FF', opacity: 0.15 }]} />
             <View style={[styles.circle, { bottom: 0, left: -100, backgroundColor: '#9A84FF', opacity: 0.1 }]} />
 
-            {}
+            { }
             <TouchableOpacity
                 onPress={() => navigation.goBack()}
                 activeOpacity={0.7}
@@ -97,7 +106,7 @@ export default function GirlSignupScreen({ navigation, route }) {
                                 <Text style={styles.headerText}>Welcome, Warrior</Text>
                                 <Text style={styles.subText}>Tell us about yourself</Text>
 
-                                {}
+                                { }
                                 <View style={styles.inputWrapper}>
                                     <Text style={styles.label}>Your Name</Text>
                                     <View style={styles.glassInputContainer}>
@@ -113,7 +122,7 @@ export default function GirlSignupScreen({ navigation, route }) {
                                     </View>
                                 </View>
 
-                                {}
+                                { }
                                 <Text style={styles.sectionTitle}>Emergency Contact (Parent/Guardian)</Text>
 
                                 <View style={styles.inputWrapper}>
@@ -149,7 +158,7 @@ export default function GirlSignupScreen({ navigation, route }) {
                                     </View>
                                 </View>
 
-                                {}
+                                { }
                                 <TouchableOpacity
                                     activeOpacity={0.9}
                                     onPress={handleCreateProfile}

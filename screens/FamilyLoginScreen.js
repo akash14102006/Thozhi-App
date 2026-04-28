@@ -8,13 +8,17 @@ import {
     KeyboardAvoidingView,
     Platform,
     Dimensions,
-    ActivityIndicator
+    ActivityIndicator,
+    Alert
 } from 'react-native';
 import { StatusBar } from 'expo-status-bar';
 import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialIcons } from '@expo/vector-icons';
 import { AuthService } from '../services/authService';
+import { PhoneAuthService } from '../services/phoneAuthService';
+
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const { width } = Dimensions.get('window');
 
@@ -22,18 +26,59 @@ export default function FamilyLoginScreen({ navigation }) {
     const [phone, setPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
+    const handleGoogleSignIn = async () => {
+        setIsLoading(true);
+        try {
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
+            const token = userInfo.data?.idToken || userInfo.idToken;
+            console.log("ID TOKEN:", token);
+
+            // You can optionally decode the token if you need user info, but standard flow uses the token
+            // We pass the token to your backend or Firebase
+            const result = await AuthService.googleLoginWithCredential(token, 'family');
+
+            if (result.success) {
+                if (result.isNewUser) {
+                    navigation.navigate('FamilySignup', { userData: result.userData });
+                } else {
+                    navigation.navigate('FamilyDashboard');
+                }
+            }
+        } catch (error) {
+            console.error("Family Google Sign-In Error", error);
+            alert("Login Failed: " + error.message);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+
     const handleSendOTP = async () => {
         if (phone.length < 10) {
-            alert("Please enter a valid phone number");
+            Alert.alert("Invalid Number", "Please enter a valid 10-digit phone number.");
             return;
         }
 
         setIsLoading(true);
         try {
-            await AuthService.sendPhoneOtp(phone, 'family');
-            navigation.navigate('PhoneOTP', { phone, role: 'family' });
+            const fullPhone = `+91${phone}`;
+            console.log('[FamilyLogin] 📱 Sending OTP to:', fullPhone);
+
+            const result = await PhoneAuthService.sendOTP(fullPhone);
+
+            if (result.success) {
+                console.log('[FamilyLogin] ✅ OTP sent, navigating to verification...');
+                navigation.navigate('PhoneOTP', {
+                    phone,
+                    role: 'family',
+                    confirmationResult: result.confirmationResult,
+                });
+            } else {
+                Alert.alert("OTP Failed", result.error || "Failed to send OTP. Please try again.");
+            }
         } catch (error) {
-            alert("Failed to send OTP");
+            console.error('[FamilyLogin] ❌ OTP Error:', error);
+            Alert.alert("Error", "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -51,9 +96,9 @@ export default function FamilyLoginScreen({ navigation }) {
             <View style={[styles.circle, { top: -100, right: -50, backgroundColor: '#A78BFA', opacity: 0.15 }]} />
             <View style={[styles.circle, { bottom: 0, left: -100, backgroundColor: '#C084FC', opacity: 0.1 }]} />
 
-            {}
+            {/* Back Button */}
             <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('RoleSelection')}
                 activeOpacity={0.7}
                 style={styles.backButtonContainer}
             >
@@ -77,10 +122,11 @@ export default function FamilyLoginScreen({ navigation }) {
                                 <Text style={styles.appName}>Family Squad Login</Text>
                             </View>
 
-                            <Text style={styles.headerText}>Monitor & Protect</Text>
-                            <Text style={styles.subText}>Login with your phone number</Text>
+                            <Text style={styles.headerText}>Family Squad</Text>
+                            <Text style={styles.subText}>Login to track your loved ones</Text>
+                            <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, marginBottom: 10, textAlign: 'center' }}>V2.9 - Force Update</Text>
 
-                            {}
+                            { }
                             <View style={styles.inputWrapper}>
                                 <Text style={styles.label}>Mobile Number</Text>
                                 <View style={styles.glassInputContainer}>
@@ -99,7 +145,7 @@ export default function FamilyLoginScreen({ navigation }) {
                                 </View>
                             </View>
 
-                            {}
+                            { }
                             <TouchableOpacity
                                 activeOpacity={0.9}
                                 onPress={handleSendOTP}
@@ -119,7 +165,7 @@ export default function FamilyLoginScreen({ navigation }) {
                                 </LinearGradient>
                             </TouchableOpacity>
 
-                            {}
+                            { }
                             <View style={styles.dividerContainer}>
                                 <View style={styles.dividerLine} />
                                 <Text style={styles.dividerText}>or continue with</Text>
@@ -127,7 +173,11 @@ export default function FamilyLoginScreen({ navigation }) {
                             </View>
 
                             <View style={styles.socialContainer}>
-                                <TouchableOpacity style={styles.socialButton}>
+                                <TouchableOpacity
+                                    style={styles.socialButton}
+                                    onPress={handleGoogleSignIn}
+                                    disabled={isLoading}
+                                >
                                     <Ionicons name="logo-google" size={24} color="#FFF" />
                                 </TouchableOpacity>
                                 <TouchableOpacity style={styles.socialButton}>
@@ -135,7 +185,7 @@ export default function FamilyLoginScreen({ navigation }) {
                                 </TouchableOpacity>
                             </View>
 
-                            {}
+                            { }
                             <View style={styles.footer}>
                                 <Text style={styles.footerText}>New to Family Squad? </Text>
                                 <TouchableOpacity onPress={() => navigation.navigate('FamilySignup')}>

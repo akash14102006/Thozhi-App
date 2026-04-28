@@ -16,13 +16,9 @@ import { LinearGradient } from 'expo-linear-gradient';
 import { BlurView } from 'expo-blur';
 import { Ionicons, MaterialCommunityIcons } from '@expo/vector-icons';
 import { AuthService } from '../services/authService';
+import { PhoneAuthService } from '../services/phoneAuthService';
 
-
-import * as WebBrowser from 'expo-web-browser';
-import * as Google from 'expo-auth-session/providers/google';
-
-
-WebBrowser.maybeCompleteAuthSession();
+import { GoogleSignin } from '@react-native-google-signin/google-signin';
 
 const { width } = Dimensions.get('window');
 
@@ -30,60 +26,27 @@ export default function GirlLoginScreen({ navigation }) {
     const [phone, setPhone] = useState('');
     const [isLoading, setIsLoading] = useState(false);
 
-    
-    const GOOGLE_CLIENT_ID = {
-        android: 'YOUR_ANDROID_CLIENT_ID.apps.googleusercontent.com',
-        ios: 'YOUR_IOS_CLIENT_ID.apps.googleusercontent.com',
-        web: 'YOUR_WEB_CLIENT_ID.apps.googleusercontent.com',
-    };
-
-    const isGoogleConfigured = !GOOGLE_CLIENT_ID.android.includes('YOUR_');
-
-    const [request, response, promptAsync] = Google.useAuthRequest({
-        androidClientId: GOOGLE_CLIENT_ID.android,
-        iosClientId: GOOGLE_CLIENT_ID.ios,
-        webClientId: GOOGLE_CLIENT_ID.web,
-    });
-
-    useEffect(() => {
-        if (response?.type === 'success') {
-            const { authentication } = response;
-            handleGoogleSignIn(authentication.accessToken);
-        }
-    }, [response]);
-
-    const handleGoogleSignIn = async (token) => {
+    const handleGoogleSignIn = async () => {
         setIsLoading(true);
         try {
-            let googleUser;
-            if (token === 'mock-token') {
-                
-                googleUser = {
-                    email: 'mock-warrior@gmail.com',
-                    name: 'Mock Warrior',
-                    photoUrl: 'https://i.pravatar.cc/150?u=mock'
-                };
-                console.log("[Dev] Using Mock Google User");
-            } else {
-                
-                const userInfoResponse = await fetch("https://www.googleapis.com/userinfo/v2/me", {
-                    headers: { Authorization: `Bearer ${token}` }
-                });
-                googleUser = await userInfoResponse.json();
-            }
-
+            await GoogleSignin.hasPlayServices();
+            const userInfo = await GoogleSignin.signIn();
             
-            const result = await AuthService.googleLogin(googleUser, 'girl');
+            const token = userInfo.data?.idToken || userInfo.idToken;
+            console.log("ID TOKEN:", token);
+
+            // Link with Firebase Auth using the token
+            const result = await AuthService.googleLoginWithCredential(token, 'girl');
 
             if (result.success) {
                 if (result.isNewUser) {
-                    navigation.navigate('GirlSignup', { userData: googleUser });
+                    navigation.navigate('GirlSignup', { userData: result.userData });
                 } else {
                     navigation.navigate('Home');
                 }
             }
         } catch (error) {
-            console.error("Google Sign-In Error", error);
+            console.error("Google Native Sign-In Error", error);
             Alert.alert("Login Failed", "Could not verify account.");
         } finally {
             setIsLoading(false);
@@ -91,32 +54,35 @@ export default function GirlLoginScreen({ navigation }) {
     };
 
     const handleGoogleButtonPress = () => {
-        if (!isGoogleConfigured) {
-            Alert.alert(
-                "GCP Mode",
-                "Google Cloud IDs not set in GirlLoginScreen.js. Use Mock Login for testing?",
-                [
-                    { text: "Use Mock", onPress: () => handleGoogleSignIn('mock-token') },
-                    { text: "Cancel", style: "cancel" }
-                ]
-            );
-            return;
-        }
-        promptAsync();
+        handleGoogleSignIn();
     };
 
     const handleSendOTP = async () => {
         if (phone.length < 10) {
-            alert("Please enter a valid phone number");
+            Alert.alert("Invalid Number", "Please enter a valid 10-digit phone number.");
             return;
         }
 
         setIsLoading(true);
         try {
-            await AuthService.sendPhoneOtp(phone, 'girl');
-            navigation.navigate('PhoneOTP', { phone, role: 'girl' });
+            const fullPhone = `+91${phone}`;
+            console.log('[GirlLogin] 📱 Sending OTP to:', fullPhone);
+
+            const result = await PhoneAuthService.sendOTP(fullPhone);
+
+            if (result.success) {
+                console.log('[GirlLogin] ✅ OTP sent, navigating to verification...');
+                navigation.navigate('PhoneOTP', {
+                    phone,
+                    role: 'girl',
+                    confirmationResult: result.confirmationResult,
+                });
+            } else {
+                Alert.alert("OTP Failed", result.error || "Failed to send OTP. Please try again.");
+            }
         } catch (error) {
-            alert("Failed to send OTP");
+            console.error('[GirlLogin] ❌ OTP Error:', error);
+            Alert.alert("Error", "Something went wrong. Please try again.");
         } finally {
             setIsLoading(false);
         }
@@ -126,7 +92,7 @@ export default function GirlLoginScreen({ navigation }) {
         <View style={styles.container}>
             <StatusBar style="light" />
 
-            {}
+            { }
             <LinearGradient
                 colors={['#12002B', '#2A0A4E', '#4B1C7A']}
                 style={StyleSheet.absoluteFill}
@@ -135,9 +101,9 @@ export default function GirlLoginScreen({ navigation }) {
             <View style={[styles.circle, { top: -100, right: -50, backgroundColor: '#7B61FF', opacity: 0.15 }]} />
             <View style={[styles.circle, { bottom: 0, left: -100, backgroundColor: '#9A84FF', opacity: 0.1 }]} />
 
-            {}
+            {/* Back Button */}
             <TouchableOpacity
-                onPress={() => navigation.goBack()}
+                onPress={() => navigation.canGoBack() ? navigation.goBack() : navigation.navigate('RoleSelection')}
                 activeOpacity={0.7}
                 style={styles.backButtonContainer}
             >
@@ -154,7 +120,7 @@ export default function GirlLoginScreen({ navigation }) {
                     <BlurView intensity={30} tint="dark" style={styles.blurContainer}>
                         <View style={styles.glassContent}>
 
-                            {}
+                            { }
                             <View style={styles.logoSection}>
                                 <View style={styles.iconContainer}>
                                     <MaterialCommunityIcons name="face-woman-shimmer" size={42} color="#FFF" />
@@ -164,8 +130,9 @@ export default function GirlLoginScreen({ navigation }) {
 
                             <Text style={styles.headerText}>Welcome Back, Warrior</Text>
                             <Text style={styles.subText}>Login with phone number</Text>
+                            <Text style={{ color: 'rgba(255,255,255,0.3)', fontSize: 10, marginBottom: 10 }}>V2.9 - Force Update</Text>
 
-                            {}
+                            { }
                             <View style={styles.inputWrapper}>
                                 <Text style={styles.label}>Mobile Number</Text>
                                 <View style={styles.glassInputContainer}>
@@ -184,7 +151,7 @@ export default function GirlLoginScreen({ navigation }) {
                                 </View>
                             </View>
 
-                            {}
+                            { }
                             <TouchableOpacity
                                 activeOpacity={0.9}
                                 onPress={handleSendOTP}
@@ -204,7 +171,7 @@ export default function GirlLoginScreen({ navigation }) {
                                 </LinearGradient>
                             </TouchableOpacity>
 
-                            {}
+                            { }
                             <View style={styles.dividerContainer}>
                                 <View style={styles.dividerLine} />
                                 <Text style={styles.dividerText}>or continue with</Text>
@@ -215,14 +182,14 @@ export default function GirlLoginScreen({ navigation }) {
                                 <TouchableOpacity
                                     style={styles.socialButton}
                                     onPress={handleGoogleButtonPress}
-                                    disabled={!request && isGoogleConfigured}
+                                    disabled={isLoading}
                                 >
                                     <Ionicons name="logo-google" size={24} color="#FFF" />
                                 </TouchableOpacity>
-                                {}
+                                { }
                             </View>
 
-                            {}
+                            { }
                             <View style={styles.footer}>
                                 <Text style={styles.footerText}>New here? </Text>
                                 <TouchableOpacity onPress={() => navigation.navigate('GirlSignup')}>
