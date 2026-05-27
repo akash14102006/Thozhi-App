@@ -39,26 +39,9 @@ The platform is engineered for three simultaneous goals: **instant response**, *
 
 ---
 
-## Taglines
-
-| | |
-|---|---|
-| 01 | *Safety that moves with her.* |
-| 02 | *When fear rises, help speaks.* |
-| 03 | *Protection beyond panic buttons.* |
-| 04 | *Because every woman deserves a guardian.* |
-| 05 | *One tap. Instant protection. Real response.* |
-| 06 | *Your safety network, always online.* |
-| 07 | *Not an app. A promise.* |
-| 08 | *She moves. We protect.* |
-| 09 | *AI that reads danger before you feel it.* |
-| 10 | *Police closer than ever. Help faster than ever.* |
-
-<br />
-
----
-
 ## Problem Statement
+
+*When fear rises, help speaks.*
 
 <div align="center">
 
@@ -89,6 +72,8 @@ Despite decades of awareness and policy reform, women across India and the world
 
 ## Target Users
 
+*Because every woman deserves a guardian.*
+
 | User Type | Purpose |
 |---|---|
 | College Students | Campus safety, late-night commute protection, verified safe routes |
@@ -104,6 +89,8 @@ Despite decades of awareness and policy reform, women across India and the world
 ---
 
 ## Solution Overview
+
+*Protection beyond panic buttons.*
 
 Thozhi transforms reactive panic into proactive, intelligent protection through a multi-layered safety ecosystem.
 
@@ -149,6 +136,8 @@ Tamil and English support for in-app secure chat between users and assigned poli
 
 ## Why Thozhi
 
+*Not an app. A promise.*
+
 | Feature | Existing Safety Apps | Thozhi |
 |---|---|---|
 | Real Police Integration | No direct police link | Live officer assignment and navigation |
@@ -167,6 +156,8 @@ Tamil and English support for in-app secure chat between users and assigned poli
 ---
 
 ## Core Features
+
+*One tap. Instant protection. Real response.*
 
 <div align="center">
 
@@ -196,6 +187,8 @@ Tamil and English support for in-app secure chat between users and assigned poli
 ---
 
 ## Safety Ecosystem
+
+*Your safety network, always online.*
 
 Thozhi operates as an interconnected safety web — every module communicates with every other in real time.
 
@@ -237,6 +230,8 @@ Thozhi operates as an interconnected safety web — every module communicates wi
 
 ## PPG Panic Detection
 
+*AI that reads danger before you feel it.*
+
 > **Photoplethysmography (PPG)** — detecting panic through your heartbeat, using only your phone's camera.
 
 ```
@@ -274,6 +269,8 @@ Step 7   Alerts sent to Family Squad and nearest Police Officer
 
 ## Tech Stack
 
+*Built on infrastructure that never sleeps.*
+
 | Layer | Technology | Purpose |
 |---|---|---|
 | Frontend | React Native | Cross-platform mobile app (Android and iOS) |
@@ -298,6 +295,8 @@ Step 7   Alerts sent to Family Squad and nearest Police Officer
 ---
 
 ## System Architecture
+
+*Every layer engineered for speed, scale, and safety.*
 
 <div align="center">
 
@@ -358,6 +357,8 @@ Step 7   Alerts sent to Family Squad and nearest Police Officer
 
 ## MVP Snapshots
 
+*Smart. Safe. Stronger Together.*
+
 <div align="center">
 
 ![MVP Snapshots](./Readme/Snapshots%20of%20MVP.png)
@@ -387,6 +388,8 @@ Step 7   Alerts sent to Family Squad and nearest Police Officer
 
 ## Security and Privacy
 
+*She moves. We protect. No one else sees.*
+
 Thozhi is built with a privacy-first, security-by-design architecture. Every layer of the platform enforces strict access control, encryption, and audit integrity.
 
 | Layer | Implementation |
@@ -408,6 +411,8 @@ Thozhi is built with a privacy-first, security-by-design architecture. Every lay
 
 ## Future Scope
 
+*Safety that evolves as fast as the world around her.*
+
 | Feature | Description |
 |---|---|
 | Wearable Integration | Connect smartwatches (Apple Watch, Wear OS) for wrist-tap SOS |
@@ -425,6 +430,8 @@ Thozhi is built with a privacy-first, security-by-design architecture. Every lay
 ---
 
 ## Folder Structure
+
+*Clean architecture. Clear purpose.*
 
 ```
 thozhi-app/
@@ -494,6 +501,8 @@ thozhi-app/
 
 ## API Flow
 
+*Police closer than ever. Help faster than ever.*
+
 ```
 [Mobile App]
      |
@@ -536,6 +545,8 @@ thozhi-app/
 ---
 
 ## Installation
+
+*Up and running in minutes. Protecting lives immediately.*
 
 ### Prerequisites
 
