@@ -29,7 +29,7 @@ let auth = null;
 
 try {
     // We try to load auth only when needed or in a safe block
-    const { initializeAuth, getReactNativePersistence, getAuth } = require('firebase/auth');
+    const { initializeAuth, getReactNativePersistence, getAuth } = require('firebase/auth/react-native');
     
     if (global._firebaseAuth) {
         auth = global._firebaseAuth;

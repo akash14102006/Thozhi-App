@@ -7,23 +7,33 @@
 
 const nodemailer = require('nodemailer');
 
-function getTransporter() {
-    if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
-        throw new Error('EMAIL_USER and EMAIL_PASS are required for OTP email delivery.');
-    }
+let transporter = null;
 
-    return nodemailer.createTransport({
-        service: 'gmail',
-        auth: {
-            user: process.env.EMAIL_USER,
-            pass: process.env.EMAIL_PASS,
-        },
-    });
+function getTransporter() {
+    if (!transporter) {
+        if (!process.env.EMAIL_USER || !process.env.EMAIL_PASS) {
+            throw new Error('EMAIL_USER and EMAIL_PASS are required for OTP email delivery.');
+        }
+
+        transporter = nodemailer.createTransport({
+            service: 'gmail',
+            pool: true,             // Enable connection pooling
+            maxConnections: 5,      // Maintain up to 5 concurrent SMTP connections
+            maxMessages: 100,       // Max messages per connection before recycling
+            rateDelta: 1000,
+            rateLimit: 5,           // Rate limit to prevent SMTP flooding
+            auth: {
+                user: process.env.EMAIL_USER,
+                pass: process.env.EMAIL_PASS,
+            },
+        });
+    }
+    return transporter;
 }
 
 exports.sendOTPEmail = async (email, otp) => {
     try {
-        const transporter = getTransporter();
+        const poolTransporter = getTransporter();
 
         const mailOptions = {
             from: process.env.EMAIL_USER,
@@ -32,7 +42,7 @@ exports.sendOTPEmail = async (email, otp) => {
             text: `Your OTP is ${otp}. Valid for 5 minutes.`,
         };
 
-        const info = await transporter.sendMail(mailOptions);
+        const info = await poolTransporter.sendMail(mailOptions);
         console.log(`[Email] Email sent to ${email}. MessageId: ${info.messageId}`);
         return { success: true, messageId: info.messageId };
     } catch (error) {
@@ -40,3 +50,4 @@ exports.sendOTPEmail = async (email, otp) => {
         return { success: false, error: error.message };
     }
 };
+

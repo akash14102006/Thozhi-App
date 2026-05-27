@@ -81,12 +81,6 @@
         "projectId": "77723db4-c740-47e3-a59b-0c78a1a5fc54"
       }
     },
-    "owner": "akash14102006",
-    "runtimeVersion": {
-      "policy": "appVersion"
-    },
-    "updates": {
-      "url": "https://u.expo.dev/77723db4-c740-47e3-a59b-0c78a1a5fc54"
-    }
+    "owner": "akash14102006"
   }
 }

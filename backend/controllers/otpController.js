@@ -79,28 +79,24 @@ exports.sendOTP = async (req, res) => {
 
         console.log(`[OTP] OTP generated for ${normalizedEmail}. Expires at: ${expiresAt.toISOString()}`);
 
-        const emailResult = await emailService.sendOTPEmail(normalizedEmail, otp);
-
-        if (!emailResult.success) {
-            console.error('[OTP] Email send failed:', emailResult.error);
-
-            if (process.env.NODE_ENV !== 'production') {
-                console.log(`[OTP] DEV FALLBACK - OTP for ${normalizedEmail}: ${otp}`);
-                return res.status(200).json({
-                    success: true,
-                    message: 'OTP generated. Email delivery is in dev fallback mode.',
-                    expiresIn: '5 minutes',
-                    devFallback: true,
-                });
+        // Send the email in the background (non-blocking)
+        emailService.sendOTPEmail(normalizedEmail, otp).then((emailResult) => {
+            if (!emailResult.success) {
+                console.error('[OTP] Background Email send failed:', emailResult.error);
+                console.log(`[OTP] DEV FALLBACK (Background) - OTP for ${normalizedEmail}: ${otp}`);
+            } else {
+                console.log(`[OTP] Email sent successfully to ${normalizedEmail}.`);
             }
+        }).catch((err) => {
+            console.error('[OTP] Background Email send error:', err);
+            console.log(`[OTP] DEV FALLBACK (Background Exception) - OTP for ${normalizedEmail}: ${otp}`);
+        });
 
-            return res.status(500).json({
-                success: false,
-                error: emailResult.error || 'Failed to send email. Please try again.',
-            });
+        // If in development mode, log the OTP immediately to the console so the developer doesn't have to wait
+        if (process.env.NODE_ENV !== 'production') {
+            console.log(`[OTP] DEV MODE - Generated OTP for ${normalizedEmail}: ${otp}`);
         }
 
-        console.log(`[OTP] Email sent to ${normalizedEmail}.`);
         return res.status(200).json({
             success: true,
             message: 'OTP sent to your email.',
@@ -114,6 +110,7 @@ exports.sendOTP = async (req, res) => {
         });
     }
 };
+
 
 exports.verifyOTP = async (req, res) => {
     try {

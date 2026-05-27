@@ -27,7 +27,7 @@ function getAuthInstance() {
 // Lazy Firebase Auth functions getter
 function getFirebaseAuthFunctions() {
     try {
-        return require('firebase/auth');
+        return require('firebase/auth/react-native');
     } catch (e) {
         return {};
     }

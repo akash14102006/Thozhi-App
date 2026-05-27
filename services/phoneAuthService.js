@@ -30,9 +30,9 @@ function getAuth() {
 // ===== Get Firebase Auth functions lazily =====
 function getAuthFunctions() {
     try {
-        return require('firebase/auth');
+        return require('firebase/auth/react-native');
     } catch (e) {
-        console.warn('[PhoneAuth] Could not load firebase/auth');
+        console.warn('[PhoneAuth] Could not load firebase/auth/react-native');
         return null;
     }
 }
